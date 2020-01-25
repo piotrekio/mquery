@@ -8,6 +8,7 @@ import click
 
 
 CSV_HEADER_SUFFIX = b"#Data operacji"
+DEFAULT_FILE_ENCODING = "windows-1250"
 
 
 @dataclasses.dataclass
@@ -19,17 +20,17 @@ class HistoryEntry:
     currency: str
 
     @classmethod
-    def from_line(cls, line: bytes):
+    def from_line(cls, line: bytes, encoding: str):
         bits = line.split(b";")
         date = datetime.date(*map(int, bits[0].split(b"-")[:3]))
-        description = bits[1].strip(b"\"").strip().decode("windows-1250")
-        category = bits[3].strip(b"\"").decode("windows-1250")
+        description = bits[1].strip(b"\"").strip().decode(encoding)
+        category = bits[3].strip(b"\"").decode(encoding)
         amount = Decimal(bits[4].rsplit(b" ", 1)[0].replace(b",", b".").replace(b" ", b"").decode())
-        currency = bits[4].split()[-1].decode("windows-1250")
+        currency = bits[4].split()[-1].decode(encoding)
         return cls(date, description, category, amount, currency)
 
 
-def read_history(file_name: str) -> List[HistoryEntry]:
+def read_history(file_name: str, encoding: str) -> List[HistoryEntry]:
     with open(file_name, "rb") as history_file:
         # Skip to CSV data
         for line in history_file:
@@ -43,7 +44,7 @@ def read_history(file_name: str) -> List[HistoryEntry]:
         for line in history_file:
             line = line.strip()
             if line:
-                history.append(HistoryEntry.from_line(line))
+                history.append(HistoryEntry.from_line(line, encoding))
 
         return history
 
@@ -80,8 +81,9 @@ def print_history(history: List[HistoryEntry]) -> None:
 
 @click.command()
 @click.argument("file_name", type=click.Path(exists=True))
-def main(file_name: str):
-    history = read_history(file_name)
+@click.option("--encoding", default=DEFAULT_FILE_ENCODING)
+def main(file_name: str, encoding: str):
+    history = read_history(file_name, encoding)
     print_history(history)
 
 
