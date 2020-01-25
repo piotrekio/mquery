@@ -55,37 +55,27 @@ def group_history_by_date(history: List[HistoryEntry]) -> Dict[datetime.date, Li
     return history_by_date
 
 
+def print_entry(entry: HistoryEntry) -> None:
+    if entry.amount > 0:
+        click.secho(f"{entry.amount:10} ", fg="green", bold=True, nl=False)
+        click.secho(f"{entry.currency} ", fg="green", nl=False)
+    else:
+        click.secho(f"{entry.amount:10} ", fg="yellow", bold=True, nl=False)
+        click.secho(f"{entry.currency} ", fg="yellow", nl=False)
+    click.secho(
+        f"{entry.description:50} " if len(entry.description) <= 50 else f"{entry.description[:47]}... ",
+        fg="cyan",
+        nl=False,
+    )
+    click.secho(entry.category, fg="magenta")
+
+
 def print_history(history: List[HistoryEntry]) -> None:
     history_by_date = group_history_by_date(history)
     for date, entries in history_by_date.items():
         click.secho(str(date), fg="white", bold=True)
-
         for entry in entries:
-            # Amount
-            click.secho(
-                f"{entry.amount:10} ",
-                fg="green" if entry.amount > 0 else "yellow",
-                bold=True,
-                nl=False,
-            )
-
-            # Currency
-            click.secho(
-                f"{entry.currency} ",
-                fg="green" if entry.amount > 0 else "yellow",
-                nl=False,
-            )
-
-            # Description
-            description = entry.description if len(entry.description) < 50 else f"{entry.description[:47]}..."
-            click.secho(
-                f"{description:50} ",
-                fg="cyan",
-                nl=False,
-            )
-
-            # Category
-            click.secho(entry.category, fg="magenta")
+            print_entry(entry)
 
 
 @click.command()
