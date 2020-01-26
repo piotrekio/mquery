@@ -36,8 +36,8 @@ History = List[HistoryEntry]
 Filter = Union[str, None]
 
 
-def read_history(file_name: str, encoding: str) -> History:
-    with open(file_name, "rb") as history_file:
+def read_history(file_path: str, encoding: str) -> History:
+    with open(file_path, "rb") as history_file:
         # Skip to CSV data
         for line in history_file:
             if line.startswith(CSV_HEADER_SUFFIX):
@@ -103,14 +103,14 @@ def filter_history(
 
 
 @click.command()
-@click.argument("file_name", type=click.Path(exists=True))
+@click.argument("file_path", type=click.Path(exists=True))
 @click.option("--encoding", default=DEFAULT_FILE_ENCODING)
 @click.option("-d", "--filter-description", default=None)
 @click.option("-c", "--filter-category", default=None)
 def main(
-    file_name: str, encoding: str, filter_description: Filter, filter_category: Filter
+    file_path: str, encoding: str, filter_description: Filter, filter_category: Filter
 ):
-    history = read_history(file_name, encoding)
+    history = read_history(file_path, encoding)
     history = filter_history(history, filter_description, filter_category)
     print_history(history)
 
