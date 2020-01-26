@@ -79,11 +79,14 @@ def print_history(history: List[HistoryEntry]) -> None:
             print_entry(entry)
 
 
-def filter_history(history, filter_description):
+def filter_history(history, filter_description, filter_category):
     new_history = []
     filter_description = filter_description and filter_description.lower()
+    filter_category = filter_category and filter_category.lower()
     for entry in history:
         if filter_description and filter_description not in entry.description.lower():
+            continue
+        if filter_category and filter_category not in entry.category.lower():
             continue
         new_history.append(entry)
     return new_history
@@ -93,9 +96,10 @@ def filter_history(history, filter_description):
 @click.argument("file_name", type=click.Path(exists=True))
 @click.option("--encoding", default=DEFAULT_FILE_ENCODING)
 @click.option("-d", "--filter-description", default=None)
-def main(file_name: str, encoding: str, filter_description: str = None):
+@click.option("-c", "--filter-category", default=None)
+def main(file_name: str, encoding: str, filter_description: str, filter_category: str):
     history = read_history(file_name, encoding)
-    history = filter_history(history, filter_description)
+    history = filter_history(history, filter_description, filter_category)
     print_history(history)
 
 
