@@ -104,9 +104,9 @@ def filter_history(
 
 @click.command()
 @click.argument("file_path", type=click.Path(exists=True))
-@click.option("-e", "--encoding", default=DEFAULT_FILE_ENCODING)
-@click.option("-d", "--filter-description", default=None)
 @click.option("-c", "--filter-category", default=None)
+@click.option("-d", "--filter-description", default=None)
+@click.option("-e", "--encoding", default=DEFAULT_FILE_ENCODING)
 def main(
     file_path: str, encoding: str, filter_description: Filter, filter_category: Filter
 ):
