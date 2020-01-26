@@ -23,9 +23,11 @@ class HistoryEntry:
     def from_line(cls, line: bytes, encoding: str):
         bits = line.split(b";")
         date = datetime.date(*map(int, bits[0].split(b"-")[:3]))
-        description = bits[1].strip(b"\"").strip().decode(encoding)
-        category = bits[3].strip(b"\"").decode(encoding)
-        amount = Decimal(bits[4].rsplit(b" ", 1)[0].replace(b",", b".").replace(b" ", b"").decode())
+        description = bits[1].strip(b'"').strip().decode(encoding)
+        category = bits[3].strip(b'"').decode(encoding)
+        amount = Decimal(
+            bits[4].rsplit(b" ", 1)[0].replace(b",", b".").replace(b" ", b"").decode()
+        )
         currency = bits[4].split()[-1].decode(encoding)
         return cls(date, description, category, amount, currency)
 
@@ -49,7 +51,9 @@ def read_history(file_name: str, encoding: str) -> List[HistoryEntry]:
         return history
 
 
-def group_history_by_date(history: List[HistoryEntry]) -> Dict[datetime.date, List[HistoryEntry]]:
+def group_history_by_date(
+    history: List[HistoryEntry],
+) -> Dict[datetime.date, List[HistoryEntry]]:
     history_by_date = collections.defaultdict(list)
     for entry in history:
         history_by_date[entry.date].append(entry)
@@ -64,7 +68,9 @@ def print_entry(entry: HistoryEntry) -> None:
         click.secho(f"{entry.amount:10} ", fg="yellow", bold=True, nl=False)
         click.secho(f"{entry.currency} ", fg="yellow", nl=False)
     click.secho(
-        f"{entry.description:50} " if len(entry.description) <= 50 else f"{entry.description[:47]}... ",
+        f"{entry.description:50} "
+        if len(entry.description) <= 50
+        else f"{entry.description[:47]}... ",
         fg="cyan",
         nl=False,
     )
