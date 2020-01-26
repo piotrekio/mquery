@@ -2,7 +2,7 @@ import collections
 import dataclasses
 import datetime
 from decimal import Decimal
-from typing import List, Dict
+from typing import List, Dict, Union
 
 import click
 
@@ -32,7 +32,11 @@ class HistoryEntry:
         return cls(date, description, category, amount, currency)
 
 
-def read_history(file_name: str, encoding: str) -> List[HistoryEntry]:
+History = List[HistoryEntry]
+Filter = Union[str, None]
+
+
+def read_history(file_name: str, encoding: str) -> History:
     with open(file_name, "rb") as history_file:
         # Skip to CSV data
         for line in history_file:
@@ -51,9 +55,7 @@ def read_history(file_name: str, encoding: str) -> List[HistoryEntry]:
         return history
 
 
-def group_history_by_date(
-    history: List[HistoryEntry],
-) -> Dict[datetime.date, List[HistoryEntry]]:
+def group_history_by_date(history: History,) -> Dict[datetime.date, History]:
     history_by_date = collections.defaultdict(list)
     for entry in history:
         history_by_date[entry.date].append(entry)
@@ -77,7 +79,7 @@ def print_entry(entry: HistoryEntry) -> None:
     click.secho(entry.category, fg="magenta")
 
 
-def print_history(history: List[HistoryEntry]) -> None:
+def print_history(history: History) -> None:
     history_by_date = group_history_by_date(history)
     for date, entries in history_by_date.items():
         click.secho(str(date), fg="white", bold=True)
@@ -85,10 +87,12 @@ def print_history(history: List[HistoryEntry]) -> None:
             print_entry(entry)
 
 
-def filter_history(history, filter_description, filter_category):
-    new_history = []
-    filter_description = filter_description and filter_description.lower()
-    filter_category = filter_category and filter_category.lower()
+def filter_history(
+    history: History, filter_description: Filter, filter_category: Filter
+):
+    new_history: History = []
+    filter_description: Filter = filter_description and filter_description.lower()
+    filter_category: Filter = filter_category and filter_category.lower()
     for entry in history:
         if filter_description and filter_description not in entry.description.lower():
             continue
@@ -103,7 +107,9 @@ def filter_history(history, filter_description, filter_category):
 @click.option("--encoding", default=DEFAULT_FILE_ENCODING)
 @click.option("-d", "--filter-description", default=None)
 @click.option("-c", "--filter-category", default=None)
-def main(file_name: str, encoding: str, filter_description: str, filter_category: str):
+def main(
+    file_name: str, encoding: str, filter_description: Filter, filter_category: Filter
+):
     history = read_history(file_name, encoding)
     history = filter_history(history, filter_description, filter_category)
     print_history(history)
