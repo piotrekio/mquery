@@ -113,16 +113,16 @@ def filter_history(
     history: History,
     amount_from: FilterDecimal,
     amount_to: FilterDecimal,
-    filter_description: FilterString,
-    filter_category: FilterString,
+    category: FilterString,
+    description: FilterString,
 ):
     new_history: History = []
-    filter_description: FilterString = filter_description and filter_description.lower()
-    filter_category: FilterString = filter_category and filter_category.lower()
+    category: FilterString = category and category.lower()
+    description: FilterString = description and description.lower()
     for entry in history:
-        if filter_description and filter_description not in entry.description.lower():
+        if category and category not in entry.category.lower():
             continue
-        if filter_category and filter_category not in entry.category.lower():
+        if description and description not in entry.description.lower():
             continue
         if amount_from and -amount_from < entry.amount < amount_from:
             continue
@@ -136,8 +136,8 @@ def filter_history(
 @click.argument("file_path", type=click.Path(exists=True))
 @click.option("-af", "--amount-from", type=DECIMAL, default=None)
 @click.option("-at", "--amount-to", type=DECIMAL, default=None)
-@click.option("-c", "--filter-category", default=None)
-@click.option("-d", "--filter-description", default=None)
+@click.option("-c", "--category", default=None)
+@click.option("-d", "--description", default=None)
 @click.option("-e", "--encoding", default=DEFAULT_FILE_ENCODING)
 @click.option("-r", "--reverse-order", is_flag=True)
 def main(
@@ -145,14 +145,12 @@ def main(
     encoding: str,
     amount_from: FilterDecimal,
     amount_to: FilterDecimal,
-    filter_description: FilterString,
-    filter_category: FilterString,
+    category: FilterString,
+    description: FilterString,
     reverse_order: bool,
 ):
     history = read_history(file_path, encoding)
-    history = filter_history(
-        history, amount_from, amount_to, filter_description, filter_category
-    )
+    history = filter_history(history, amount_from, amount_to, category, description)
     print_history(history, reverse_order)
 
 
