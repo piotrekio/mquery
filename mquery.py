@@ -33,6 +33,7 @@ class HistoryEntry:
 
 
 History = List[HistoryEntry]
+FilterDate = Union[datetime.date, None]
 FilterString = Union[str, None]
 FilterDecimal = Union[Decimal, None]
 
@@ -51,6 +52,21 @@ class DecimalParamType(click.ParamType):
             self.fail(f"{value!r} is not a valid decimal number", param, ctx)
 
 
+class DateParamType(click.ParamType):
+    name = "date"
+
+    def convert(
+        self, value: str, param: click.core.Option, ctx: click.core.Context
+    ) -> FilterDate:
+        if not value:
+            return None
+        try:
+            return datetime.datetime.strptime(value, "%Y-%m-%d").date()
+        except ValueError:
+            self.fail(f"{value!r} is not a valid date", param, ctx)
+
+
+DATE = DateParamType()
 DECIMAL = DecimalParamType()
 
 
@@ -114,6 +130,8 @@ def filter_history(
     amount_from: FilterDecimal,
     amount_to: FilterDecimal,
     category: FilterString,
+    date_from: FilterDate,
+    date_to: FilterDate,
     description: FilterString,
 ):
     new_history: History = []
@@ -121,6 +139,10 @@ def filter_history(
     description: FilterString = description and description.lower()
     for entry in history:
         if category and category not in entry.category.lower():
+            continue
+        if date_from and entry.date < date_from:
+            continue
+        if date_to and entry.date > date_to:
             continue
         if description and description not in entry.description.lower():
             continue
@@ -137,6 +159,8 @@ def filter_history(
 @click.option("-af", "--amount-from", type=DECIMAL, default=None)
 @click.option("-at", "--amount-to", type=DECIMAL, default=None)
 @click.option("-c", "--category", default=None)
+@click.option("-df", "--date-from", type=DATE, default=None)
+@click.option("-dt", "--date-to", type=DATE, default=None)
 @click.option("-d", "--description", default=None)
 @click.option("-e", "--encoding", default=DEFAULT_FILE_ENCODING)
 @click.option("-r", "--reverse-order", is_flag=True)
@@ -147,12 +171,16 @@ def main(
     amount_from: FilterDecimal,
     amount_to: FilterDecimal,
     category: FilterString,
+    date_from: FilterDate,
+    date_to: FilterDate,
     description: FilterString,
     reverse_order: bool,
     csv_header_suffix: str,
 ):
     history = read_history(file_path, encoding, csv_header_suffix)
-    history = filter_history(history, amount_from, amount_to, category, description)
+    history = filter_history(
+        history, amount_from, amount_to, category, date_from, date_to, description
+    )
     print_history(history, reverse_order)
 
 
