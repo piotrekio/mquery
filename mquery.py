@@ -79,9 +79,13 @@ def print_entry(entry: HistoryEntry) -> None:
     click.secho(entry.category, fg="magenta")
 
 
-def print_history(history: History) -> None:
+def print_history(history: History, reverse_order: bool) -> None:
     history_by_date = group_history_by_date(history)
-    for date, entries in history_by_date.items():
+    dates = history_by_date.keys()
+    if reverse_order:
+        dates = reversed(dates)
+    for date in dates:
+        entries = history_by_date[date]
         click.secho(str(date), fg="white", bold=True)
         for entry in entries:
             print_entry(entry)
@@ -107,12 +111,17 @@ def filter_history(
 @click.option("-c", "--filter-category", default=None)
 @click.option("-d", "--filter-description", default=None)
 @click.option("-e", "--encoding", default=DEFAULT_FILE_ENCODING)
+@click.option("-r", "--reverse-order", is_flag=True)
 def main(
-    file_path: str, encoding: str, filter_description: Filter, filter_category: Filter
+    file_path: str,
+    encoding: str,
+    filter_description: Filter,
+    filter_category: Filter,
+    reverse_order: bool,
 ):
     history = read_history(file_path, encoding)
     history = filter_history(history, filter_description, filter_category)
-    print_history(history)
+    print_history(history, reverse_order)
 
 
 if __name__ == "__main__":
