@@ -33,7 +33,7 @@ class HistoryEntry:
 
 
 History = List[HistoryEntry]
-Filter = Union[str, None]
+FilterString = Union[str, None]
 FilterDecimal = Union[Decimal, None]
 
 
@@ -113,12 +113,12 @@ def filter_history(
     history: History,
     amount_from: FilterDecimal,
     amount_to: FilterDecimal,
-    filter_description: Filter,
-    filter_category: Filter,
+    filter_description: FilterString,
+    filter_category: FilterString,
 ):
     new_history: History = []
-    filter_description: Filter = filter_description and filter_description.lower()
-    filter_category: Filter = filter_category and filter_category.lower()
+    filter_description: FilterString = filter_description and filter_description.lower()
+    filter_category: FilterString = filter_category and filter_category.lower()
     for entry in history:
         if filter_description and filter_description not in entry.description.lower():
             continue
@@ -145,8 +145,8 @@ def main(
     encoding: str,
     amount_from: FilterDecimal,
     amount_to: FilterDecimal,
-    filter_description: Filter,
-    filter_category: Filter,
+    filter_description: FilterString,
+    filter_category: FilterString,
     reverse_order: bool,
 ):
     history = read_history(file_path, encoding)
