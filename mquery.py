@@ -64,7 +64,7 @@ def group_history_by_date(history: History,) -> Dict[datetime.date, History]:
 
 def print_entry(entry: HistoryEntry) -> None:
     if entry.amount > 0:
-        click.secho(f"{entry.amount:10} ", fg="green", bold=True, nl=False)
+        click.secho(f"{entry.amount:+10} ", fg="green", bold=True, nl=False)
         click.secho(f"{entry.currency} ", fg="green", nl=False)
     else:
         click.secho(f"{entry.amount:10} ", fg="yellow", bold=True, nl=False)
