@@ -32,24 +32,10 @@ class HistoryEntry:
         return cls(date, description, category, amount, currency)
 
 
-History = List[HistoryEntry]
 FilterDate = Union[datetime.date, None]
-FilterString = Union[str, None]
 FilterDecimal = Union[Decimal, None]
-
-
-class DecimalParamType(click.ParamType):
-    name = "decimal"
-
-    def convert(
-        self, value: str, param: click.core.Option, ctx: click.core.Context
-    ) -> FilterDecimal:
-        if not value:
-            return None
-        try:
-            return Decimal(value)
-        except TypeError:
-            self.fail(f"{value!r} is not a valid decimal number", param, ctx)
+FilterString = Union[str, None]
+History = List[HistoryEntry]
 
 
 class DateParamType(click.ParamType):
@@ -64,6 +50,20 @@ class DateParamType(click.ParamType):
             return datetime.datetime.strptime(value, "%Y-%m-%d").date()
         except ValueError:
             self.fail(f"{value!r} is not a valid date", param, ctx)
+
+
+class DecimalParamType(click.ParamType):
+    name = "decimal"
+
+    def convert(
+        self, value: str, param: click.core.Option, ctx: click.core.Context
+    ) -> FilterDecimal:
+        if not value:
+            return None
+        try:
+            return Decimal(value)
+        except TypeError:
+            self.fail(f"{value!r} is not a valid decimal number", param, ctx)
 
 
 DATE = DateParamType()
@@ -96,6 +96,35 @@ def group_history_by_date(history: History,) -> Dict[datetime.date, History]:
     return history_by_date
 
 
+def filter_history(
+    history: History,
+    amount_from: FilterDecimal,
+    amount_to: FilterDecimal,
+    category: FilterString,
+    date_from: FilterDate,
+    date_to: FilterDate,
+    description: FilterString,
+):
+    new_history: History = []
+    category: FilterString = category and category.lower()
+    description: FilterString = description and description.lower()
+    for entry in history:
+        if amount_from and -amount_from < entry.amount < amount_from:
+            continue
+        if amount_to and (entry.amount > amount_to or entry.amount < -amount_to):
+            continue
+        if category and category not in entry.category.lower():
+            continue
+        if date_from and entry.date < date_from:
+            continue
+        if date_to and entry.date > date_to:
+            continue
+        if description and description not in entry.description.lower():
+            continue
+        new_history.append(entry)
+    return new_history
+
+
 def print_entry(entry: HistoryEntry) -> None:
     if entry.amount > 0:
         click.secho(f"{entry.amount:+10} ", fg="green", bold=True, nl=False)
@@ -123,35 +152,6 @@ def print_history(history: History, reverse_order: bool) -> None:
         click.secho(str(date), fg="white", bold=True)
         for entry in entries:
             print_entry(entry)
-
-
-def filter_history(
-    history: History,
-    amount_from: FilterDecimal,
-    amount_to: FilterDecimal,
-    category: FilterString,
-    date_from: FilterDate,
-    date_to: FilterDate,
-    description: FilterString,
-):
-    new_history: History = []
-    category: FilterString = category and category.lower()
-    description: FilterString = description and description.lower()
-    for entry in history:
-        if category and category not in entry.category.lower():
-            continue
-        if date_from and entry.date < date_from:
-            continue
-        if date_to and entry.date > date_to:
-            continue
-        if description and description not in entry.description.lower():
-            continue
-        if amount_from and -amount_from < entry.amount < amount_from:
-            continue
-        if amount_to and (entry.amount > amount_to or entry.amount < -amount_to):
-            continue
-        new_history.append(entry)
-    return new_history
 
 
 @click.command()
