@@ -7,7 +7,7 @@ from typing import List, Dict, Union
 import click
 
 
-CSV_HEADER_SUFFIX = b"#Data operacji"
+DEFAULT_CSV_HEADER_SUFFIX = "#Data operacji"
 DEFAULT_FILE_ENCODING = "windows-1250"
 
 
@@ -54,11 +54,11 @@ class DecimalParamType(click.ParamType):
 DECIMAL = DecimalParamType()
 
 
-def read_history(file_path: str, encoding: str) -> History:
+def read_history(file_path: str, encoding: str, csv_header_suffix: str) -> History:
     with open(file_path, "rb") as history_file:
         # Skip to CSV data
         for line in history_file:
-            if line.startswith(CSV_HEADER_SUFFIX):
+            if line.startswith(csv_header_suffix.encode()):
                 break
         else:
             return []
@@ -140,6 +140,7 @@ def filter_history(
 @click.option("-d", "--description", default=None)
 @click.option("-e", "--encoding", default=DEFAULT_FILE_ENCODING)
 @click.option("-r", "--reverse-order", is_flag=True)
+@click.option("-s", "--csv-header-suffix", default=DEFAULT_CSV_HEADER_SUFFIX)
 def main(
     file_path: str,
     encoding: str,
@@ -148,8 +149,9 @@ def main(
     category: FilterString,
     description: FilterString,
     reverse_order: bool,
+    csv_header_suffix: str,
 ):
-    history = read_history(file_path, encoding)
+    history = read_history(file_path, encoding, csv_header_suffix)
     history = filter_history(history, amount_from, amount_to, category, description)
     print_history(history, reverse_order)
 
