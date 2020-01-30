@@ -34,6 +34,24 @@ class HistoryEntry:
 
 History = List[HistoryEntry]
 Filter = Union[str, None]
+FilterDecimal = Union[Decimal, None]
+
+
+class DecimalParamType(click.ParamType):
+    name = "decimal"
+
+    def convert(
+        self, value: str, param: click.core.Option, ctx: click.core.Context
+    ) -> FilterDecimal:
+        if not value:
+            return None
+        try:
+            return Decimal(value)
+        except TypeError:
+            self.fail(f"{value!r} is not a valid decimal number", param, ctx)
+
+
+DECIMAL = DecimalParamType()
 
 
 def read_history(file_path: str, encoding: str) -> History:
@@ -92,7 +110,11 @@ def print_history(history: History, reverse_order: bool) -> None:
 
 
 def filter_history(
-    history: History, filter_description: Filter, filter_category: Filter
+    history: History,
+    amount_from: FilterDecimal,
+    amount_to: FilterDecimal,
+    filter_description: Filter,
+    filter_category: Filter,
 ):
     new_history: History = []
     filter_description: Filter = filter_description and filter_description.lower()
@@ -102,12 +124,18 @@ def filter_history(
             continue
         if filter_category and filter_category not in entry.category.lower():
             continue
+        if amount_from and -amount_from < entry.amount < amount_from:
+            continue
+        if amount_to and (entry.amount > amount_to or entry.amount < -amount_to):
+            continue
         new_history.append(entry)
     return new_history
 
 
 @click.command()
 @click.argument("file_path", type=click.Path(exists=True))
+@click.option("-af", "--amount-from", type=DECIMAL, default=None)
+@click.option("-at", "--amount-to", type=DECIMAL, default=None)
 @click.option("-c", "--filter-category", default=None)
 @click.option("-d", "--filter-description", default=None)
 @click.option("-e", "--encoding", default=DEFAULT_FILE_ENCODING)
@@ -115,12 +143,16 @@ def filter_history(
 def main(
     file_path: str,
     encoding: str,
+    amount_from: FilterDecimal,
+    amount_to: FilterDecimal,
     filter_description: Filter,
     filter_category: Filter,
     reverse_order: bool,
 ):
     history = read_history(file_path, encoding)
-    history = filter_history(history, filter_description, filter_category)
+    history = filter_history(
+        history, amount_from, amount_to, filter_description, filter_category
+    )
     print_history(history, reverse_order)
 
 
