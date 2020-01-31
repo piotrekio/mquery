@@ -7,6 +7,8 @@ from typing import List, Dict, Union
 import click
 
 
+__version__ = "0.1.0"
+
 DEFAULT_CSV_HEADER_SUFFIX = "#Data operacji"
 DEFAULT_FILE_ENCODING = "windows-1250"
 
@@ -165,6 +167,7 @@ def print_history(history: History, reverse_order: bool) -> None:
 @click.option("-e", "--encoding", default=DEFAULT_FILE_ENCODING)
 @click.option("-r", "--reverse-order", is_flag=True)
 @click.option("-s", "--csv-header-suffix", default=DEFAULT_CSV_HEADER_SUFFIX)
+@click.version_option(__version__)
 def main(
     file_path: str,
     encoding: str,
