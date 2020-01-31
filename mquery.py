@@ -10,6 +10,7 @@ import click
 __version__ = "0.1.0"
 
 DEFAULT_CSV_HEADER_SUFFIX = "#Data operacji"
+DEFAULT_CURRENCY = "PLN"
 DEFAULT_FILE_ENCODING = "windows-1250"
 
 
@@ -103,6 +104,7 @@ def filter_history(
     amount_from: FilterDecimal,
     amount_to: FilterDecimal,
     category: FilterString,
+    currency: FilterString,
     date_from: FilterDate,
     date_to: FilterDate,
     description: FilterString,
@@ -116,6 +118,8 @@ def filter_history(
         if amount_to and (entry.amount > amount_to or entry.amount < -amount_to):
             continue
         if category and category not in entry.category.lower():
+            continue
+        if currency and entry.currency != currency:
             continue
         if date_from and entry.date < date_from:
             continue
@@ -167,6 +171,7 @@ def print_history(history: History, reverse_order: bool) -> None:
 @click.option("-e", "--encoding", default=DEFAULT_FILE_ENCODING)
 @click.option("-r", "--reverse-order", is_flag=True)
 @click.option("-s", "--csv-header-suffix", default=DEFAULT_CSV_HEADER_SUFFIX)
+@click.option("-u", "--currency", default=DEFAULT_CURRENCY)
 @click.version_option(__version__)
 def main(
     file_path: str,
@@ -179,10 +184,18 @@ def main(
     description: FilterString,
     reverse_order: bool,
     csv_header_suffix: str,
+    currency: FilterString,
 ):
     history = read_history(file_path, encoding, csv_header_suffix)
     history = filter_history(
-        history, amount_from, amount_to, category, date_from, date_to, description
+        history,
+        amount_from,
+        amount_to,
+        category,
+        currency,
+        date_from,
+        date_to,
+        description,
     )
     print_history(history, reverse_order)
 
