@@ -23,4 +23,5 @@ setup(
         "Topic :: Utilities",
     ],
     entry_points={"console_scripts": ["mquery=mquery:main"]},
+    extras_require={"dev": ["black", "factory_boy", "pytest"]},
 )
