@@ -169,8 +169,8 @@ def print_history(history: History, reverse_order: bool) -> None:
 @click.option("-dt", "--date-to", type=DATE, default=None)
 @click.option("-d", "--description", default=None)
 @click.option("-e", "--encoding", default=DEFAULT_FILE_ENCODING)
+@click.option("-h", "--csv-header-suffix", default=DEFAULT_CSV_HEADER_SUFFIX)
 @click.option("-r", "--reverse-order", is_flag=True)
-@click.option("-s", "--csv-header-suffix", default=DEFAULT_CSV_HEADER_SUFFIX)
 @click.option("-u", "--currency", default=DEFAULT_CURRENCY)
 @click.version_option(__version__)
 def main(
