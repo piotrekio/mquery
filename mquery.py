@@ -184,6 +184,23 @@ def print_summary(history: History, currency: str) -> None:
     click.secho(f"{balance:+12}", fg=balance_color, bold=True)
 
 
+def print_categories_summary(history: History, currency: str) -> None:
+    categories = collections.defaultdict(Decimal)
+    for entry in history:
+        if entry.currency == currency:
+            categories[entry.category] += entry.amount
+    print()
+    for category, balance in sorted(categories.items()):
+        click.secho(f"{category:.<40} ", fg="magenta", nl=False)
+        if balance > 0:
+            balance_color = "green"
+        elif balance < 0:
+            balance_color = "yellow"
+        else:
+            balance_color = "white"
+        click.secho(f"{balance:+0}", fg=balance_color)
+
+
 @click.command()
 @click.argument("file_path", type=click.Path(exists=True))
 @click.option(
@@ -244,6 +261,9 @@ def print_summary(history: History, currency: str) -> None:
 @click.option("-r", "--reverse-order", is_flag=True, help="Revert chronological order.")
 @click.option("-s", "--summary", is_flag=True, help="Show summary.")
 @click.option(
+    "-sc", "--categories-summary", is_flag=True, help="Show summary of categories."
+)
+@click.option(
     "-u",
     "--currency",
     default=DEFAULT_CURRENCY,
@@ -255,6 +275,7 @@ def main(
     encoding: str,
     amount_from: FilterDecimal,
     amount_to: FilterDecimal,
+    categories_summary: bool,
     category: FilterString,
     date_from: FilterDate,
     date_to: FilterDate,
@@ -276,6 +297,8 @@ def main(
         description,
     )
     print_history(history, reverse_order)
+    if history and categories_summary:
+        print_categories_summary(history, currency)
     if summary:
         print_summary(history, currency)
 
