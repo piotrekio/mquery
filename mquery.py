@@ -113,9 +113,9 @@ def filter_history(
     category: FilterString = category and category.lower()
     description: FilterString = description and description.lower()
     for entry in history:
-        if amount_from and -amount_from < entry.amount < amount_from:
+        if amount_from and abs(entry.amount) < amount_from:
             continue
-        if amount_to and (entry.amount > amount_to or entry.amount < -amount_to):
+        if amount_to and abs(entry.amount) > amount_to:
             continue
         if category and category not in entry.category.lower():
             continue
