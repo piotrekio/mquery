@@ -186,17 +186,69 @@ def print_summary(history: History, currency: str) -> None:
 
 @click.command()
 @click.argument("file_path", type=click.Path(exists=True))
-@click.option("-af", "--amount-from", type=DECIMAL, default=None)
-@click.option("-at", "--amount-to", type=DECIMAL, default=None)
-@click.option("-c", "--category", default=None)
-@click.option("-df", "--date-from", type=DATE, default=None)
-@click.option("-dt", "--date-to", type=DATE, default=None)
-@click.option("-d", "--description", default=None)
-@click.option("-e", "--encoding", default=DEFAULT_FILE_ENCODING)
-@click.option("-h", "--csv-header-suffix", default=DEFAULT_CSV_HEADER_SUFFIX)
-@click.option("-r", "--reverse-order", is_flag=True)
-@click.option("-s", "--summary", is_flag=True)
-@click.option("-u", "--currency", default=DEFAULT_CURRENCY)
+@click.option(
+    "-af",
+    "--amount-from",
+    type=DECIMAL,
+    default=None,
+    help="Show only entries with amount greater than given value.",
+)
+@click.option(
+    "-at",
+    "--amount-to",
+    type=DECIMAL,
+    default=None,
+    help="Show only entries with amount lower than given value.",
+)
+@click.option(
+    "-c",
+    "--category",
+    default=None,
+    help="Show only entries which category includes given phrase.",
+)
+@click.option(
+    "-df",
+    "--date-from",
+    type=DATE,
+    default=None,
+    help="Show only entries with date greater than given value.",
+)
+@click.option(
+    "-dt",
+    "--date-to",
+    type=DATE,
+    default=None,
+    help="Show only entries with date lower than given value.",
+)
+@click.option(
+    "-d",
+    "--description",
+    default=None,
+    help="Show only entries which description includes given phrase.",
+)
+@click.option(
+    "-e",
+    "--encoding",
+    default=DEFAULT_FILE_ENCODING,
+    help=f"Use custom file encoding (default is {DEFAULT_FILE_ENCODING}).",
+)
+@click.option(
+    "-h",
+    "--csv-header-suffix",
+    default=DEFAULT_CSV_HEADER_SUFFIX,
+    help=(
+        "Unique string at the begging of the last line of CSV header "
+        f'(default is "{DEFAULT_CSV_HEADER_SUFFIX}").'
+    ),
+)
+@click.option("-r", "--reverse-order", is_flag=True, help="Revert chronological order.")
+@click.option("-s", "--summary", is_flag=True, help="Show summary.")
+@click.option(
+    "-u",
+    "--currency",
+    default=DEFAULT_CURRENCY,
+    help=f"Show only entries with given currency (default is {DEFAULT_CURRENCY}).",
+)
 @click.version_option(__version__)
 def main(
     file_path: str,
