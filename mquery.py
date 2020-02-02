@@ -160,6 +160,30 @@ def print_history(history: History, reverse_order: bool) -> None:
             print_entry(entry)
 
 
+def print_summary(history: History, currency: str) -> None:
+    income = expenses = 0
+    for entry in history:
+        if entry.currency == currency:
+            if entry.amount > 0:
+                income += entry.amount
+            else:
+                expenses += entry.amount
+    balance = income + expenses
+    if balance > 0:
+        balance_color = "green"
+    elif balance < 0:
+        balance_color = "yellow"
+    else:
+        balance_color = "white"
+    print()
+    click.echo("Income:    ", nl=False)
+    click.secho(click.style(f"{income:+12}", fg="green"))
+    click.echo("Expenses:  ", nl=False)
+    click.secho(f"{expenses:+12}", fg="yellow")
+    click.secho("Balance:   ", bold=True, nl=False)
+    click.secho(f"{balance:+12}", fg=balance_color, bold=True)
+
+
 @click.command()
 @click.argument("file_path", type=click.Path(exists=True))
 @click.option("-af", "--amount-from", type=DECIMAL, default=None)
@@ -171,6 +195,7 @@ def print_history(history: History, reverse_order: bool) -> None:
 @click.option("-e", "--encoding", default=DEFAULT_FILE_ENCODING)
 @click.option("-h", "--csv-header-suffix", default=DEFAULT_CSV_HEADER_SUFFIX)
 @click.option("-r", "--reverse-order", is_flag=True)
+@click.option("-s", "--summary", is_flag=True)
 @click.option("-u", "--currency", default=DEFAULT_CURRENCY)
 @click.version_option(__version__)
 def main(
@@ -183,6 +208,7 @@ def main(
     date_to: FilterDate,
     description: FilterString,
     reverse_order: bool,
+    summary: bool,
     csv_header_suffix: str,
     currency: FilterString,
 ):
@@ -198,6 +224,8 @@ def main(
         description,
     )
     print_history(history, reverse_order)
+    if summary:
+        print_summary(history, currency)
 
 
 if __name__ == "__main__":
