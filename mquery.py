@@ -101,13 +101,13 @@ def group_history_by_date(history: History,) -> Dict[datetime.date, History]:
 
 def filter_history(
     history: History,
-    amount_from: FilterDecimal,
-    amount_to: FilterDecimal,
-    category: FilterString,
-    currency: FilterString,
-    date_from: FilterDate,
-    date_to: FilterDate,
-    description: FilterString,
+    amount_from: FilterDecimal = None,
+    amount_to: FilterDecimal = None,
+    category: FilterString = None,
+    currency: FilterString = None,
+    date_from: FilterDate = None,
+    date_to: FilterDate = None,
+    description: FilterString = None,
 ):
     new_history: History = []
     category: FilterString = category and category.lower()
