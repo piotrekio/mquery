@@ -53,6 +53,6 @@ mquery history.csv --summary
 
     ![](./images/export-step-1.png)
 
-5. Select *CSV* from the dropdown menu and save the file on you disk.
+5. Select *CSV* from the dropdown menu and save the file on your disk.
 
     ![](./images/export-step-2.png)
