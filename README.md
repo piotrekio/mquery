@@ -44,7 +44,7 @@ Include summary of incomes and expenses:
 mquery history.csv --summary
 ```
 
-## How to export you history
+## How to export your history
 
 1. Go to the mBank website and log in to your account.
 2. Got to *Płatności* > *Lista operacji*.
