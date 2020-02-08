@@ -12,7 +12,7 @@ This IS NOT an official tool, which means it IS NOT supported or endorsed by mBa
 
 1. Install Python 3.
 2. Clone this repository.
-3. Enter `mquery` directory and run `pip install -e .`
+3. Enter `mquery` directory and run `pip3 install -e .`
 
 ## Usage
 
