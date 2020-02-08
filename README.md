@@ -2,6 +2,8 @@
 
 `mquery` is a command-line tool for reading and filtering your mBank history exports.
 
+![](./images/cover.png)
+
 **Disclaimer**
 
 This IS NOT an official tool, which means it IS NOT supported or endorsed by mBank.
